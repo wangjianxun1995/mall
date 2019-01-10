@@ -659,7 +659,7 @@ var formatComponentName = (noop);
       }
       return '\n\nfound in\n\n' + tree
         .map(function (vm, i) { return ("" + (i === 0 ? '---> ' : repeat(' ', 5 + i * 2)) + (Array.isArray(vm)
-            ? ((formatComponentName(vm[0])) + "... (" + (vm[1]) + " recursive calls)")
+            ? ((formatComponentName(vm[0])) + "... (" + (vm[1]) + " recursive malls)")
             : formatComponentName(vm))); })
         .join('\n')
     } else {
@@ -4795,7 +4795,7 @@ function initExtend (Vue) {
 
     // For props and computed properties, we define the proxy getters on
     // the Vue instances at extension time, on the extended prototype. This
-    // avoids Object.defineProperty calls for each instance created.
+    // avoids Object.defineProperty malls for each instance created.
     if (Sub.options.props) {
       initProps$1(Sub);
     }

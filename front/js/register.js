@@ -1,6 +1,8 @@
 var vm = new Vue({
 	el: '#app',
 	data: {
+	    host,
+
 		error_name: false,
 		error_password: false,
 		error_check_password: false,
@@ -27,6 +29,7 @@ var vm = new Vue({
         sms_code_tip: '获取短信验证码',
         error_image_code_message: '请填写图片验证码',
         error_sms_code_message: '请填写短信验证码',
+
 
 	},
     mounted: function() {
