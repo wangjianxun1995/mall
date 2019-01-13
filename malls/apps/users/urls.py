@@ -1,4 +1,6 @@
 from django.conf.urls import url
+
+from users.views import UserEMailVerificationAPIView
 from . import views
 from rest_framework_jwt.views import obtain_jwt_token
 urlpatterns = [
@@ -10,4 +12,5 @@ urlpatterns = [
     url(r'^auths',obtain_jwt_token),
     url(r'infos/$',views.UserCenterInfoAPIView.as_view()),
     url(r'emails/$',views.UserEmaileInfoAPIView.as_view()),
+    url(r'^emails/verification/$',UserEMailVerificationAPIView.as_view()),
 ]
