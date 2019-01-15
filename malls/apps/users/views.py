@@ -1,11 +1,15 @@
 from django.shortcuts import render
 
 # Create your views here.
+from rest_framework import request
 from rest_framework import status
+from rest_framework import mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
-from users.models import User
+from users.serializers import AddressSerializer
+from users.models import User, Address
 from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer, UserEmaileInfoSerializer
 from users.untils import check_token
 
@@ -99,7 +103,8 @@ class UserCenterInfoAPIView(APIView):
 #         #4.返回响应
 #         return Response(serializer.data)
 
-from rest_framework.generics import UpdateAPIView
+from rest_framework.generics import UpdateAPIView, ListAPIView
+
 
 class UserEmaileInfoAPIView(UpdateAPIView):
     #必须认证登录信息
@@ -143,3 +148,83 @@ class UserEMailVerificationAPIView(APIView):
         # 5.返回响应
         return Response({'msg':'OK'})
 
+"""
+1.后端接受数据
+2.对数据进行校验
+3.数据入库
+4.返回响应
+
+
+"""
+
+class UserAddressAPIView(mixins.ListModelMixin,mixins.CreateModelMixin,mixins.UpdateModelMixin,GenericViewSet):
+#
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        #由于用户的地址有存在删除的状态，所以我们需要对数据进行筛选
+        return self.request.user.addresses.filter(is_deleted=False)
+
+    def create(self,request,*args,**kwargs):
+        #保存用户地址数据
+        count = request.user.addresses.count()
+        if count >=20:
+            return Response({'message':'保存地址数量已达上限'},status=status.HTTP_400_BAD_REQUEST)
+
+        return super().create(request,*args,**kwargs)
+############################地址列表###############################
+    def list(self,request,*args,**kwargs):
+        # 获取用户地址列表
+        #获取所有地址
+        queryset = self.get_queryset()
+        # 创建序列化器
+        serializer = self.get_serializer(queryset,many=True)
+        user = self.request.user
+        return Response({
+            'user_id':user.id,
+            'default_address_id':user.default_address_id,
+            'limit':20,
+            'addresses':serializer.data
+        })
+############################删除###############################
+    def destory(self,*args,**kwargs):
+
+        address = self.get_object()
+        address.is_deleted=True
+        address.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+from rest_framework.decorators import action
+from .serializers import AddressSerializer
+
+#修改
+@action(methods=['put'], detail=True)
+def title(self, request, pk=None, address_id=None):
+    """
+    修改标题
+    """
+    address = self.get_object()
+    serializer = AddressSerializer(instance=address, data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data)
+
+#修改默认值
+@action(methods=['put'], detail=True)
+def status(self, request, pk=None, address_id=None):
+    """
+    设置默认地址
+    """
+    address = self.get_object()
+    request.user.default_address = address
+    request.user.save()
+    return Response({'message': 'OK'}, status=status.HTTP_200_OK)
+# from rest_framework.generics import RetrieveUpdateDestroyAPIView
+# from rest_framework.generics import CreateAPIView,ListAPIView,DestroyAPIView,UpdateAPIView
+# # from rest_framework.generics import GenericAPIView
+# class UserAddressAPIView(CreateAPIView,ListAPIView,DestroyAPIView,UpdateAPIView):
+#
+#     serializer_class = AddressSerializer
+#     queryset = Address.objects.all()
+#
+#     queryset.delete([])
