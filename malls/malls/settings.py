@@ -281,6 +281,11 @@ CKEDITOR_CONFIGS = {
 }
 CKEDITOR_UPLOAD_PATH = ''  # 上传图片保存路径，使用了FastDFS，所以此处设为''
 
+DEFAULT_FILE_STORAGE = 'utils.fastdfs.storage.MyStorage'
+
+# FastDFS
+FDFS_URL = 'http://192.168.44.128:8888/'  # 访问图片的路径域名 ip地址修改为自己机器的ip地址
+FDFS_CLIENT_CONF = os.path.join(BASE_DIR, 'utils/fastdfs/client.conf')
 
 
 

@@ -1,6 +1,7 @@
 from fdfs_client.client import Fdfs_client
 from django.utils.deconstruct import deconstructible
 from django.core.files.storage import Storage
+from malls import settings
 #您的存储类必须是可解构的， 以便在迁移中的字段上使用它时可以对其进行序列化。
 # 只要您的字段具有可自行序列化的参数，就 可以使用
 # django.utils.deconstruct.deconstructible类装饰器（这就是Django在FileSystemStorage上使用的）。
@@ -10,10 +11,14 @@ from django.core.files.storage import Storage
 class MyStorage(Storage):
     # 2.Django必须能够在没有任何参数的情况下实例化您的存储系统。
     # 这意味着任何设置都应该来自django.conf.settings：
-    # def __init__(self, option=None):
-    #     if not option:
-    #         option = settings.CUSTOM_STORAGE_OPTIONS
-    pass
+    def __init__(self, config_path=None,config_url=None):
+        if not config_path:
+            fdfs_config = settings.FDFS_CLIENT_CONF
+            self.fdfs_config=fdfs_config
+        if not config_url:
+            fdfs_url=settings.FDFS_URL
+            self.fdfs_url=fdfs_url
+
 #3.您的存储类必须实现_open()和_save() 方法以及适用于
     # 您的存储类的任何其他方法。
 
@@ -29,7 +34,8 @@ class MyStorage(Storage):
         # max_length=None
 
     #1. 创建 Fdfs的客户端，让客户端加载配置文件
-        client = Fdfs_client('utils/fastdfs/client.conf')
+        # client = Fdfs_client('utils/fastdfs/client.conf')
+        client = Fdfs_client(self.fdfs_config)
     #2.获取上传的文件
         # 是读取 content 的内容
         # content.read()
@@ -37,7 +43,7 @@ class MyStorage(Storage):
         file_data = content.read()
     #3.上传图片，并获取 返回内容
         #upload_by_buffer 上传二进制流
-        result = client.append_by_buffer(file_data)
+        result = client.upload_by_buffer(file_data)
     #4. 根据返回内容 获取 remote file_id
         """
         {'Group name': 'group1',
@@ -48,9 +54,9 @@ class MyStorage(Storage):
          'Uploaded size': '45.00KB'}
 
         """
-        if result['Status']=='Upload successed.':
+        if result.get('Status')=='Upload successed.':
             # 上传成功
-            file_id = result['Remote file_id']
+            file_id = result.get('Remote file_id')
         else:
             raise Exception('上传失败')
 
@@ -62,4 +68,5 @@ class MyStorage(Storage):
         return False
 
     def url(self, name):
-        return 'http://192.168.44.128:8888/' + name
+        # return 'http://192.168.44.128:8888/' + name
+        return self.fdfs_url + name

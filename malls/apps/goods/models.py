@@ -66,6 +66,10 @@ class Goods(BaseModel):
     sales = models.IntegerField(default=0, verbose_name='销量')
     comments = models.IntegerField(default=0, verbose_name='评价数')
 
+    desc_detail = RichTextUploadingField(default='', verbose_name='详细介绍')
+    desc_pack = RichTextField(default='', verbose_name='包装信息')
+    desc_service = RichTextUploadingField(default='', verbose_name='售后服务')
+
     class Meta:
         db_table = 'tb_goods'
         verbose_name = '商品'
@@ -140,9 +144,7 @@ class SKUImage(BaseModel):
     sku = models.ForeignKey(SKU, on_delete=models.CASCADE, verbose_name='sku')
     image = models.ImageField(verbose_name='图片')
 
-    desc_detail = RichTextUploadingField(default='', verbose_name='详细介绍')
-    desc_pack = RichTextField(default='', verbose_name='包装信息')
-    desc_service = RichTextUploadingField(default='', verbose_name='售后服务')
+
 
     class Meta:
         db_table = 'tb_sku_image'
