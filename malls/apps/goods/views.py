@@ -1,6 +1,8 @@
 from django.shortcuts import render
 
 # Create your views here.
+from rest_framework.filters import OrderingFilter
+
 from goods.models import SKU
 from goods.serializers import HotSKUListSerialiezer
 
@@ -24,3 +26,19 @@ class HotSKUListAPIView(ListAPIView):
         category_id=self.kwargs['category_id']
         return SKU.objects.filter(category_id=category_id).order_by('-sales')[0:2]
     serializer_class = HotSKUListSerialiezer
+
+from rest_framework.generics import ListAPIView
+class SKUListView(ListAPIView):
+    serializer_class = HotSKUListSerialiezer
+
+
+    # 排序
+    filter_backends = [OrderingFilter]
+
+    ordering_fields = ('create_time','price','sales')
+
+    def get_queryset(self):
+        category_id = self.kwargs.get('category_id')
+        return SKU.objects.filter(category_id=category_id)
+
+

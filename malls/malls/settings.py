@@ -107,6 +107,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',           # 如果没有jwt则采用 sessison认证
         # 'rest_framework.authentication.BasicAuthentication',
     ),
+    #分页
+    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.StandardResultsSetPagination',
 }
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -118,7 +120,7 @@ DATABASES = {
         'PORT': 3306,  # 数据库端口
         'USER': 'root',  # 数据库用户名
         'PASSWORD': 'mysql',  # 数据库用户密码
-        'NAME': 'shopping'  # 数据库名字
+        'NAME': 'malls'  # 数据库名字
 
     }
 }

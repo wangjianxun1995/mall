@@ -33,7 +33,7 @@ app.config_from_object('celery_tasks.config')
 # 4. 让celery自动检测
 #参数：列表
 #元素：任务的包路径
-app.autodiscover_tasks(['celery_tasks.sms','celery_tasks.mail'])
+app.autodiscover_tasks(['celery_tasks.sms','celery_tasks.mail','celery_tasks.html'])
 
 # 让 worker去执行任务
 # 需要 在虚拟环境中执行指令
