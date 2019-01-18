@@ -69,7 +69,7 @@ class CartView(APIView):
             }
             #对字典数据进行处理
             # 7.5.1将字典转换为bytes类型,pickle
-            dumps = pickle.loads(cookie_cart)
+            dumps =pickle.dumps(cookie_cart)
             # 7.5.2 将pickle二进制类进行,base64编码
             encode = base64.b64encode(dumps)
             # 7.5.3 将base64的bytes 类型转换为str
