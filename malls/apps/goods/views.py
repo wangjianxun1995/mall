@@ -22,6 +22,7 @@ GET /goods/categories/(?P<category_id>\d+)/hotskus/
 """
 from rest_framework.generics import ListAPIView
 class HotSKUListAPIView(ListAPIView):
+    pagination_class = None
     def get_queryset(self):
         category_id=self.kwargs['category_id']
         return SKU.objects.filter(category_id=category_id).order_by('-sales')[0:2]
@@ -40,5 +41,16 @@ class SKUListView(ListAPIView):
     def get_queryset(self):
         category_id = self.kwargs.get('category_id')
         return SKU.objects.filter(category_id=category_id)
+
+from .serializers import SKUIndexSerializer
+from drf_haystack.viewsets import HaystackViewSet
+
+class SKUSearchViewSet(HaystackViewSet):
+    """
+    SKU搜索
+    """
+    index_models = [SKU]
+
+    serializer_class = SKUIndexSerializer
 
 

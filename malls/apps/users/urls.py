@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'emails/$',views.UserEmaileInfoAPIView.as_view()),
     url(r'^emails/verification/$',UserEMailVerificationAPIView.as_view()),
     # url(r'^addresses/$',views.UserAddressAPIView.as_view()),
+    url(r'^browerhistories/$',views.UserBrowsingHistoryView.as_view(),name='history'),
 ]
 from .views import UserAddressAPIView
 from rest_framework.routers import DefaultRouter

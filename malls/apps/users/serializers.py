@@ -1,6 +1,7 @@
 import re
 from rest_framework import serializers
 
+from goods.models import SKU
 from malls import settings
 from users.models import User, Address
 from django_redis import get_redis_connection
@@ -156,3 +157,36 @@ class AddressSerializer(serializers.ModelSerializer):
 
         # return Address.objects.create(**validated_data)
         return super().create(validated_data)
+
+class AddUserBrowsingHistorySerializer(serializers.Serializer):
+    sku_id = serializers.IntegerField(label='商品编号',min_value=1,required=True)
+
+    def validate_sku_id(self,value):
+        #检查商品是否存在
+        try:
+            SKU.objects.get(pk=value)
+        except SKU.DoesNotExist:
+            raise serializers.ValidationError('商品不存在')
+        return value
+    def create(self, validated_data):
+
+        #获取用户信息
+        user_id = self.context['request'].user.id
+        #获取商品id
+        sku_id = validated_data['sku_id']
+        #连接redis
+        #把数据保存到redis中
+        redis_conn = get_redis_connection('history')
+        #移除已经存在的本记录
+        redis_conn.lrem('history_%s'%user_id,0,sku_id)
+        #添加新记录
+        redis_conn.lpush('history_%s'%user_id,sku_id)
+        #保存最多五条记录
+        redis_conn.ltrim('history_%s'%user_id,0,4)
+
+        return validated_data
+class SKUSeriaLizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SKU
+        fields = ('id', 'name', 'price', 'default_image_url', 'comments')

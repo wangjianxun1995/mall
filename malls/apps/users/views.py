@@ -8,7 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from users.serializers import AddressSerializer
+from goods.models import SKU
+from users.serializers import AddressSerializer, AddUserBrowsingHistorySerializer, SKUSeriaLizer
 from users.models import User, Address
 from users.serializers import RegiserUserSerializer, UserCenterInfoSerializer, UserEmaileInfoSerializer
 from users.untils import check_token
@@ -228,3 +229,28 @@ def status(self, request, pk=None, address_id=None):
 #     queryset = Address.objects.all()
 #
 #     queryset.delete([])
+from rest_framework.generics import CreateAPIView
+class UserBrowsingHistoryView(CreateAPIView):
+    serializer_class = AddUserBrowsingHistorySerializer
+    permission_classes = [IsAuthenticated]
+from django_redis import get_redis_connection
+class UserBrowsingHistoryView(CreateAPIView):
+    serializer_class = AddUserBrowsingHistorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        #获取用户信息
+        user_id = request.user.id
+        #1.链接redis
+        redis_conn = get_redis_connection('history')
+        #2.获取redis数据[sku_id,sku_id]
+        history_sku_id = redis_conn.lrange('history_%s'%user_id,0,4)
+        #根据history_sku_id 查询商品
+        skus_list=[]
+        for sku_id in history_sku_id:
+            sku=SKU.objects.get(pk=sku_id)
+            skus_list.append(sku)
+        #序列化
+        serializer = SKUSeriaLizer(skus_list,many=True)
+        return Response(serializer.data)
+    
