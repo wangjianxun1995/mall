@@ -253,4 +253,3 @@ class UserBrowsingHistoryView(CreateAPIView):
         #序列化
         serializer = SKUSeriaLizer(skus_list,many=True)
         return Response(serializer.data)
-    
