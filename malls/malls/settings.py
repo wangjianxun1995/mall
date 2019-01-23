@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'ckeditor_uploader',  # 富文本编辑器上传图片模块
     'django_crontab',  # 定时任务
     'haystack',
+    'orders.apps.OrdersConfig',
 ]
 
 MIDDLEWARE = [
@@ -327,3 +328,11 @@ HAYSTACK_CONNECTIONS = {
 
 # 当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+# 支付宝
+ALIPAY_APPID = "2016092400588257"
+ALIPAY_URL = "https://openapi.alipaydev.com/gateway.do"
+ALIPAY_DEBUG = True
+APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'apps/pay/keys/app_private_key.pem')
+ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'apps/pay/keys/alipay_public_key.pem')
+
