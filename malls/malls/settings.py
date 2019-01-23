@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django_crontab',  # 定时任务
     'haystack',
     'orders.apps.OrdersConfig',
+    'pay.apps.PayConfig'
 ]
 
 MIDDLEWARE = [

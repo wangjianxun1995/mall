@@ -1,6 +1,8 @@
 from django.shortcuts import render
 
 # Create your views here.
+from pay.models import Payment
+
 """
 1.第一步：创建应用（appid）
 2.第二步：配置密钥（一共两对，我们的服务器一对，支付宝的一对）
@@ -78,3 +80,43 @@ class PaymentView(APIView):
         alipay_url = settings.ALIPAY_URL + '?' + order_string
         # 返回响应
         return Response({'alipay_url':alipay_url})
+
+
+class PaymentStatusView(APIView):
+
+    def put(self,request):
+        #我们是让前端以查询字符串的形式传递过来的
+        #获取参数
+        data = request.query_params.dict()
+        #sign 不能参与签名验证
+        signature = data.pop('sign')
+
+        # 创建支付对象
+        alipay = AliPay(
+            appid=settings.ALIPAY_APPID,
+            app_notify_url=None,  # 默认回调url
+            app_private_key_path=settings.APP_PRIVATE_KEY_PATH,
+            alipay_public_key_path=settings.ALIPAY_PUBLIC_KEY_PATH,
+            sign_type='RSA2',  # RSA 或者 RSA2
+            debug=settings.ALIPAY_DEBUG
+        )
+
+        # verify
+        success = alipay.verify(data, signature)
+        if success :
+            #获取支付宝的id和我们的订单id
+            #out_trade_id 我们的
+            #trade_id 支付宝
+            out_trade_id = data.get('out_trade_no')
+            trade_id = data.get('trade_no')
+
+            Payment.objects.create(
+                order_id=out_trade_id,
+                trade_id=trade_id
+            )
+            OrderInfo.objects.filter(order_id=out_trade_id).update(status=OrderInfo.ORDER_STATUS_ENUM['UNSEND'])
+
+            return Response(status=status.HTTP_200_OK)
+        else:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
